@@ -59,7 +59,7 @@ class WebpackAssets extends ComponentBase {
     public function js($manifestFilename = 'assets-manifest', $manifestClass = 'WebpackBuiltFiles') {
         $files = $this->getFiles('js', $manifestFilename, $manifestClass);
         return implode("\n", array_map(function ($file) {
-            return '<script src="' . url($file). '">';
+            return '<script src="' . url($file). '"></script>';
         }, $files));
     }
 
