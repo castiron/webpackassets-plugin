@@ -2,6 +2,7 @@
 
 use Cms\Classes\ComponentBase;
 use Cms\Classes\Theme;
+use October\Rain\Exception\ApplicationException;
 
 /**
  * Class WebpackAssets
@@ -78,10 +79,11 @@ class WebpackAssets extends ComponentBase {
     }
 
     /**
+     * @param string $prop can be 'css' or 'js' currently
      * @param string $manifestFilename
      * @param string $manifestClass
-     * @param string $prop can be 'css' or 'js' currently
      * @return array
+     * @throws ApplicationException
      */
     protected function getFiles($prop = '', $manifestFilename = 'assets-manifest', $manifestClass = 'WebpackBuiltFiles') {
         if (!$prop) {
@@ -94,7 +96,9 @@ class WebpackAssets extends ComponentBase {
          * Bail if we couldn't load the class
          */
         if (!class_exists($manifestClass)) {
-            return [];
+            throw new ApplicationException('Could not load class ' . $manifestClass . ' from asset manifest file ' .
+                $this->assetManifestPath($manifestFilename)
+            );
         }
 
         $propName = "${prop}Files";
@@ -130,11 +134,12 @@ class WebpackAssets extends ComponentBase {
 
     /**
      * @param $manifestFilename
+     * @throws ApplicationException
      */
     protected function loadAssetsManifest($manifestFilename) {
         $file = $this->assetManifestPath($manifestFilename);
         if (!is_file($file)) {
-            return;
+            throw new ApplicationException('Could not load webpack-php manifest file ' . $file);
         }
         require_once($file);
     }
