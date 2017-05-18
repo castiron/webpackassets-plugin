@@ -3,6 +3,12 @@
 This plugin for OctoberCMS works in tandem with the node package `php-manifest-webpack-plugin` to include CSS and JS
  in your site based on a PHP manifest file written to your assets directory. This will allow you to use hashed file
  names in your built files, and let October pick up the paths effortlessly.
+ 
+### Installation
+
+```
+composer require castiron/webpackassets-plugin
+```
 
 ### Quick start
 
