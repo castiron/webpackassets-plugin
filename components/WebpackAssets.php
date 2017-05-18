@@ -89,6 +89,14 @@ class WebpackAssets extends ComponentBase {
         }
 
         $this->loadAssetsManifest($manifestFilename);
+
+        /**
+         * Bail if we couldn't load the class
+         */
+        if (!class_exists($manifestClass)) {
+            return [];
+        }
+
         $propName = "${prop}Files";
         return $this->prependAssetsFolder(
             $manifestClass::$$propName
