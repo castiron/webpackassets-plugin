@@ -1,0 +1,29 @@
+{
+    "name": "castiron/webpackassets-plugin",
+    "type": "october-plugin",
+    "description": "Webpack hashed files in October CMS",
+    "homepage": "https://github.com/castiron/webpackassets-plugin",
+    "keywords": ["october", "octobercms", "webpack"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gabe Blair",
+            "email": "gabe@castironcoding.com",
+            "role": "Author"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "october/rain": "~1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Castiron\\": "plugins/castiron/"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "minimum-stability": "dev"
+}
+
