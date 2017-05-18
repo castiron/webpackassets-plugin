@@ -5,6 +5,12 @@
     "homepage": "https://github.com/castiron/webpackassets-plugin",
     "keywords": ["october", "octobercms", "webpack"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/gblair/webpackassets-plugin"
+        }
+    ],
     "authors": [
         {
             "name": "Gabe Blair",
