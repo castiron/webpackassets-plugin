@@ -49,10 +49,11 @@ The parameter options are provided in case you had to generally control either t
 
 ### Component options
  
-`publicFolder`
+`publicFolder` (default: "")
 
 If you are [using a public folder in 
- OctoberCMS](https://octobercms.com/docs/setup/configuration#public-folder), specify it here. E.g. "www" or "public" 
+ OctoberCMS](https://octobercms.com/docs/setup/configuration#public-folder) (you should be!), specify it here. E.g.
+ "www" or "public"
 
 ```
 [webpackAssets]
@@ -63,7 +64,7 @@ Leave this blank if you're not using a public folder.
 
 ---
 
-`assetsFolder`
+`assetsFolder` (default: "assets")
 
 The path to the folder, relative to your public folder, to which webpack is writing your assets. This
  corresponds to `output.path` from your webpack config.
