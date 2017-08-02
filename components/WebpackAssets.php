@@ -102,19 +102,7 @@ class WebpackAssets extends ComponentBase {
         }
 
         $assetListVar = "${prop}Files";
-        return $this->prependAssetsFolder(
-            $manifestClass::$$assetListVar
-        );
-    }
-
-    /**
-     * @param array $filenames
-     * @return array
-     */
-    protected function prependAssetsFolder($filenames = []) {
-        return array_map(function ($item) {
-            return $this->assetsFolder() . DIRECTORY_SEPARATOR . $item;
-        }, $filenames);
+        return $manifestClass::$$assetListVar;
     }
 
     /**
