@@ -102,9 +102,7 @@ class WebpackAssets extends ComponentBase {
         }
 
         $assetListVar = "${prop}Files";
-        return $this->prependAssetsFolder(
-            $manifestClass::$$assetListVar
-        );
+        return $manifestClass::$$assetListVar;
     }
 
     /**
