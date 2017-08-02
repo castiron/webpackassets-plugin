@@ -106,16 +106,6 @@ class WebpackAssets extends ComponentBase {
     }
 
     /**
-     * @param array $filenames
-     * @return array
-     */
-    protected function prependAssetsFolder($filenames = []) {
-        return array_map(function ($item) {
-            return $this->assetsFolder() . DIRECTORY_SEPARATOR . $item;
-        }, $filenames);
-    }
-
-    /**
      * @param $manifestFilename
      * @return string
      */
