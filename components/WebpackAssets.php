@@ -1,5 +1,6 @@
 <?php namespace Castiron\WebpackAssets\Components;
 
+use Castiron\WebpackAssets\Services\ManifestLoader;
 use Cms\Classes\ComponentBase;
 use Cms\Classes\Theme;
 use October\Rain\Exception\ApplicationException;
@@ -85,11 +86,13 @@ class WebpackAssets extends ComponentBase {
      * @return array
      * @throws ApplicationException
      */
-    protected function getFiles($prop = '', $manifestFilename = 'assets-manifest', $manifestClass = 'WebpackBuiltFiles') {
+    protected function getFiles($prop = '', $manifestFilename, $manifestClass = 'WebpackBuiltFiles') {
         if (!$prop) {
             return [];
         }
 
+        // Replace with call to loader class,
+        // and pass public and assets folder
         $this->loadAssetsManifest($manifestFilename);
 
         /**
@@ -97,7 +100,7 @@ class WebpackAssets extends ComponentBase {
          */
         if (!class_exists($manifestClass)) {
             throw new ApplicationException('Could not load class ' . $manifestClass . ' from asset manifest file ' .
-                $this->assetManifestPath($manifestFilename)
+                $this->manifestLoader->assetManifestPath($manifestFilename)
             );
         }
 
@@ -107,28 +110,12 @@ class WebpackAssets extends ComponentBase {
 
     /**
      * @param $manifestFilename
-     * @return string
-     */
-    protected function assetManifestPath($manifestFilename) {
-        $path = [
-            $this->publicFolder(),
-            $this->assetsFolder(),
-            $manifestFilename . '.php',
-        ];
-        return public_path(
-            implode(DIRECTORY_SEPARATOR, $path)
-        );
-    }
-
-    /**
-     * @param $manifestFilename
      * @throws ApplicationException
      */
     protected function loadAssetsManifest($manifestFilename) {
-        $file = $this->assetManifestPath($manifestFilename);
-        if (!is_file($file)) {
-            throw new ApplicationException('Could not load webpack-php manifest file ' . $file);
-        }
-        require_once($file);
+        (new ManifestLoader(
+            $this->publicFolder(),
+            $this->assetsFolder()
+        ))->load($manifestFilename);
     }
 }
