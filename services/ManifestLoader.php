@@ -1,11 +1,23 @@
 <?php namespace Castiron\WebpackAssets\Services;
 
+use October\Rain\Exception\ApplicationException;
+
 /**
  * Class ManifestLoader
  * @package Castiron\WebpackAssets\Services
  */
 
 class ManifestLoader {
+    /**
+     * @var
+     */
+    var $publicFolder;
+
+    /**
+     * @var
+     */
+    var $assetsFolder;
+
     /**
      * @param $publicFolder, $assetFolder
      * @return void

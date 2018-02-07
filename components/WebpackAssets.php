@@ -113,10 +113,9 @@ class WebpackAssets extends ComponentBase {
      * @throws ApplicationException
      */
     protected function loadAssetsManifest($manifestFilename) {
-        $this->manifestLoader = new ManifestLoader(
+        (new ManifestLoader(
             $this->publicFolder(),
             $this->assetsFolder()
-        );
-        $this->manifestLoader->load($manifestFilename);
+        ))->load($manifestFilename);
     }
 }
