@@ -19,23 +19,29 @@ class ManifestLoader {
     var $assetsFolder;
 
     /**
+     * @var
+     */
+    var $manifestFilename;
+
+    /**
      * @param $publicFolder, $assetFolder
      * @return void
      */
-    function __construct($publicFolder, $assetsFolder) {
+    function __construct($publicFolder = 'www', $assetsFolder = 'assets', $manifestFilename = 'manifest.json') {
         $this->publicFolder = $publicFolder;
         $this->assetsFolder = $assetsFolder;
+        $this->manifestFilename = $manifestFilename;
     }
 
     /**
      * @param $manifestFilename
      * @return string
      */
-    public function assetManifestPath($manifestFilename) {
+    public function assetManifestPath() {
         $path = [
             $this->publicFolder,
             $this->assetsFolder,
-            $manifestFilename . '.php',
+            $this->manifestFilename
         ];
         return public_path(
             implode(DIRECTORY_SEPARATOR, $path)
@@ -46,11 +52,11 @@ class ManifestLoader {
      * @param $manifestFilename
      * @throws ApplicationException
      */
-    public function load($manifestFilename = 'assets-manifest') {
-        $file = $this->assetManifestPath($manifestFilename);
+    public function getManifest() {
+        $file = $this->assetManifestPath();
         if (!is_file($file)) {
-            throw new ApplicationException('Could not load webpack-php manifest file ' . $file);
+            throw new ApplicationException('Could not load webpack manifest file ' . $file);
         }
-        require_once($file);
+        return (array) json_decode(file_get_contents($file));
     }
 }

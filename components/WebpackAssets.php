@@ -26,17 +26,23 @@ class WebpackAssets extends ComponentBase {
     public function defineProperties(){
 
         return [
+            'publicFolder' => [
+                'title'       => 'Public folder',
+                'description' => 'Example: "www". the public folder (if you are using one). E.g. "public," or "www." See https://octobercms.com/docs/setup/configuration#public-folder',
+                'type'        => 'string',
+                'default'     => 'www',
+            ],
             'assetsFolder' => [
                 'title'       => 'Assets folder',
                 'description' => 'Example: "assets". The assets folder name where your resources are written by webpack',
                 'type'        => 'string',
                 'default'     => 'assets',
             ],
-            'publicFolder' => [
-                'title'       => 'Public folder',
-                'description' => 'Example: "www". the public folder (if you are using one). E.g. "public," or "www." See https://octobercms.com/docs/setup/configuration#public-folder',
+            'manifestFilename' => [
+                'title'       => 'Manifest Filename',
+                'description' => 'Name of manifest filename output by Webpack (default: "manifest.json")',
                 'type'        => 'string',
-                'default'     => '',
+                'default'     => 'manifest.json',
             ]
         ];
     }
@@ -46,23 +52,8 @@ class WebpackAssets extends ComponentBase {
      * @param string $manifestClass The class name used to scope the asset files
      * @return string
      */
-    public function css($manifestFilename = 'assets-manifest', $manifestClass = 'WebpackBuiltFiles') {
-        $files = $this->getFiles('css', $manifestFilename, $manifestClass);
-        return implode("\n", array_map(function ($file) {
-            return '<link rel="stylesheet" href="' . url($file). '">';
-        }, $files));
-    }
-
-    /**
-     * @param string $manifestFilename The name of the php file that was written by webpack
-     * @param string $manifestClass The class name used to scope the asset files
-     * @return string
-     */
-    public function js($manifestFilename = 'assets-manifest', $manifestClass = 'WebpackBuiltFiles') {
-        $files = $this->getFiles('js', $manifestFilename, $manifestClass);
-        return implode("\n", array_map(function ($file) {
-            return '<script src="' . url($file). '"></script>';
-        }, $files));
+    public function file($fileName) {
+        return $this->getFile($fileName);
     }
 
     /**
@@ -80,42 +71,59 @@ class WebpackAssets extends ComponentBase {
     }
 
     /**
-     * @param string $prop can be 'css' or 'js' currently
-     * @param string $manifestFilename
-     * @param string $manifestClass
+     * @param string $fileName
      * @return array
      * @throws ApplicationException
      */
-    protected function getFiles($prop = '', $manifestFilename, $manifestClass = 'WebpackBuiltFiles') {
-        if (!$prop) {
-            return [];
+    protected function getFile($fileName) {
+        if (!$fileName) {
+            return null;
         }
 
         // Replace with call to loader class,
         // and pass public and assets folder
-        $this->loadAssetsManifest($manifestFilename);
+        $manifest = (new ManifestLoader(
+            $this->publicFolder(),
+            $this->assetsFolder(),
+            $this->property('manifestFilename')
+        ))->getManifest();
 
         /**
          * Bail if we couldn't load the class
          */
-        if (!class_exists($manifestClass)) {
-            throw new ApplicationException('Could not load class ' . $manifestClass . ' from asset manifest file ' .
-                $this->manifestLoader->assetManifestPath($manifestFilename)
+        if (count($manifest) == 0) {
+            throw new ApplicationException('Manifest file could not be loaded, or it contained no files: ' .
+                $manifestFilename
             );
         }
 
-        $assetListVar = "${prop}Files";
-        return $manifestClass::$$assetListVar;
+        if (!array_key_exists ($fileName , $manifest)) return '';
+
+        return $this->fileTag($manifest[$fileName]);
     }
 
     /**
-     * @param $manifestFilename
-     * @throws ApplicationException
+     * @param string $filePath
+     * @param string $fileType
+     * @return string
      */
-    protected function loadAssetsManifest($manifestFilename) {
-        (new ManifestLoader(
-            $this->publicFolder(),
-            $this->assetsFolder()
-        ))->load($manifestFilename);
-    }
+     protected function fileTag($filePath) {
+         // Setup templates for tag types
+         $tags = array(
+             'css' => function($path) {
+                return '<link rel="stylesheet" type="text/css" href="' . url($path) .'">';
+             },
+             'js' => function($path) {
+                return '<script type="text/javascript" src="' . url($path) . '"></script>';
+             }
+         );
+
+         // Figure out the file extension based on the path name
+         $extension = preg_match('/\.(\w+$)/', $filePath, $matches);
+
+         // Return an empty string if the file extension can't be found
+         if (count($matches) == 0) return '';
+
+         return $tags[$matches[1]]($filePath);
+     }
 }
