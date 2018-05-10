@@ -5,7 +5,9 @@ This plugin for OctoberCMS works in tandem with the node package `webpack-assets
  in your site based on a JSON manifest file written to your assets directory. This will allow you to use hashed file
  names in your built files, and let October pick up the paths effortlessly.
  
- In production these paths get cached so the JSON file isn't read on every request.
+ In non-development environments (when the APP_ENV environment variable doesn't equal "dev") these paths get cached 
+ so the JSON file isn't read on every request. This cache should be cleared as a part of the deploy process by running
+ `php artisan cache:clear`.
  
 ### Installation
 
