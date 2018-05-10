@@ -6,8 +6,8 @@ use October\Rain\Exception\ApplicationException;
  * Class ManifestLoader
  * @package Castiron\WebpackAssets\Services
  */
-
-class ManifestLoader {
+class ManifestLoader
+{
     /**
      * @var
      */
@@ -24,20 +24,23 @@ class ManifestLoader {
     var $manifestFilename;
 
     /**
-     * @param $publicFolder, $assetFolder
+     * @param $publicFolder
+     * @param $assetsFolder
+     * @param $manifestFilename
      * @return void
      */
-    function __construct($publicFolder = 'www', $assetsFolder = 'assets', $manifestFilename = 'manifest.json') {
+    function __construct($publicFolder = 'www', $assetsFolder = 'assets', $manifestFilename = 'manifest.json')
+    {
         $this->publicFolder = $publicFolder;
         $this->assetsFolder = $assetsFolder;
         $this->manifestFilename = $manifestFilename;
     }
 
     /**
-     * @param $manifestFilename
      * @return string
      */
-    public function assetManifestPath() {
+    public function assetManifestPath()
+    {
         $path = [
             $this->publicFolder,
             $this->assetsFolder,
@@ -49,14 +52,14 @@ class ManifestLoader {
     }
 
     /**
-     * @param $manifestFilename
      * @throws ApplicationException
      */
-    public function getManifest() {
+    public function getManifest()
+    {
         $file = $this->assetManifestPath();
         if (!is_file($file)) {
             throw new ApplicationException('Could not load webpack manifest file ' . $file);
         }
-        return (array) json_decode(file_get_contents($file));
+        return (array)json_decode(file_get_contents($file));
     }
 }

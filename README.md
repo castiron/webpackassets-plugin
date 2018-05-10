@@ -1,8 +1,11 @@
 ## Webpack Assets in October CMS
 
-This plugin for OctoberCMS works in tandem with the node package `php-manifest-webpack-plugin` to include CSS and JS
- in your site based on a PHP manifest file written to your assets directory. This will allow you to use hashed file
+This plugin for OctoberCMS works in tandem with the node package `webpack-assets-manifest` 
+(https://github.com/webdeveric/webpack-assets-manifest) to include CSS and JS
+ in your site based on a JSON manifest file written to your assets directory. This will allow you to use hashed file
  names in your built files, and let October pick up the paths effortlessly.
+ 
+ In production these paths get cached so the JSON file isn't read on every request.
  
 ### Installation
 
@@ -17,39 +20,26 @@ This plugin provides a component called `webpackAssets`. Include the component i
  
 ```html
 [webpackAssets]
-publicFolder = www
 ==
 
 <!-- include css <link> tags: -->
-{{ webpackAssets.css }}
+{{ webpackAssets.tag('unhashed_filename.css') | raw }}
 
 ```
 
 ```html
 [webpackAssets]
-publicFolder = www
 ==
 
 <!-- include js <script> tags: -->
-{{ webpackAssets.js }}
-
+{{ webpackAssets.tag('unhashed_filename.js') | raw }}
+{{ webpackAssets.tag('webpack-dev-server.js') | raw }}
 ```
-
-#### Component method parameters
-
-For either of the above, you can specify the specific manifest file name, like:
-
-```html
-{{ webpackAssets.css('my-manifest-file-name', 'MyManifestClassName') }}
-```
-
-The parameter options are provided in case you had to generally control either the manifest file name used, 
- or the name of the PHP class written to that file, when configuring `php-manifest-webpack-plugin`. However, the 
- defaults here are the same as those in the node module for convenience.
 
 ### Component options
  
-`publicFolder` (default: "")
+`publicFolder` (default: "www")
+
 
 If you are [using a public folder in 
  OctoberCMS](https://octobercms.com/docs/setup/configuration#public-folder) (you should be!), specify it here. E.g.
@@ -60,10 +50,6 @@ If you are [using a public folder in
 publicFolder = public
 ```
 
-Leave this blank if you're not using a public folder.
-
----
-
 `assetsFolder` (default: "assets")
 
 The path to the folder, relative to your public folder, to which webpack is writing your assets. This
@@ -73,3 +59,12 @@ The path to the folder, relative to your public folder, to which webpack is writ
 [webpackAssets]
 assetsFolder = assets
 ```
+
+`manifestFilename` (default: "manifest.json", must be relative to assetsFolder)
+
+```
+[webpackAssets]
+manifestFilename = files.json
+```
+
+

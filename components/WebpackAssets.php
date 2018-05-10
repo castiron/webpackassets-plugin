@@ -3,127 +3,177 @@
 use Castiron\WebpackAssets\Services\ManifestLoader;
 use Cms\Classes\ComponentBase;
 use Cms\Classes\Theme;
+use Illuminate\Support\Facades\Cache;
 use October\Rain\Exception\ApplicationException;
 
 /**
  * Class WebpackAssets
  * @package Castiron\WebpackAssets\Components
  */
-class WebpackAssets extends ComponentBase {
+class WebpackAssets extends ComponentBase
+{
     /**
      * @return array
      */
-    public function componentDetails() {
+    public function componentDetails()
+    {
         return [
-            'name'        => 'Webpack assets',
-            'description' => 'Render javascript/CSS includes for webpack assets'
+            'name' => 'Webpack assets',
+            'description' => 'Render Javascript/CSS includes for webpack assets'
         ];
     }
 
     /**
      * @return array
      */
-    public function defineProperties(){
+    public function defineProperties()
+    {
 
         return [
             'publicFolder' => [
-                'title'       => 'Public folder',
+                'title' => 'Public folder',
                 'description' => 'Example: "www". the public folder (if you are using one). E.g. "public," or "www." See https://octobercms.com/docs/setup/configuration#public-folder',
-                'type'        => 'string',
-                'default'     => 'www',
+                'type' => 'string',
+                'default' => 'www',
             ],
             'assetsFolder' => [
-                'title'       => 'Assets folder',
+                'title' => 'Assets folder',
                 'description' => 'Example: "assets". The assets folder name where your resources are written by webpack',
-                'type'        => 'string',
-                'default'     => 'assets',
+                'type' => 'string',
+                'default' => 'assets',
             ],
             'manifestFilename' => [
-                'title'       => 'Manifest Filename',
+                'title' => 'Manifest Filename',
                 'description' => 'Name of manifest filename output by Webpack (default: "manifest.json")',
-                'type'        => 'string',
-                'default'     => 'manifest.json',
+                'type' => 'string',
+                'default' => 'manifest.json',
             ]
         ];
     }
 
     /**
-     * @param string $manifestFilename The name of the php file that was written by webpack
-     * @param string $manifestClass The class name used to scope the asset files
+     * @param string $fileName The name of the json file that was written by webpack
      * @return string
+     * @throws ApplicationException
      */
-    public function file($fileName) {
-        return $this->getFile($fileName);
+    public function tag($fileName)
+    {
+        if(!$this->appEnvDev()) {
+            $cachedResult = Cache::get($this->getCacheKey($fileName));
+            if($cachedResult) return $cachedResult;
+        }
+
+        $file = $this->getFile($fileName);
+
+        if(!$this->appEnvDev()) {
+            Cache::forever($this->getCacheKey($fileName), $file);
+        }
+
+        return $file;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function appEnvDev()
+    {
+        return env('APP_ENV') === 'dev';
     }
 
     /**
      * @return string
      */
-    protected function assetsFolder() {
+    protected function assetsFolder()
+    {
         return rtrim($this->property('assetsFolder'), DIRECTORY_SEPARATOR);
     }
 
     /**
      * @return string
      */
-    protected function publicFolder() {
+    protected function publicFolder()
+    {
         return rtrim($this->property('publicFolder'), DIRECTORY_SEPARATOR);
     }
 
     /**
      * @param string $fileName
-     * @return array
+     * @return string
      * @throws ApplicationException
      */
-    protected function getFile($fileName) {
+    protected function getFile($fileName)
+    {
+        /** Bail if an falsey value is passed as a filename */
         if (!$fileName) {
-            return null;
+            throw new ApplicationException('Empty filename mapping requested from asset manifest');
         }
 
-        // Replace with call to loader class,
-        // and pass public and assets folder
+        // Replace with call to loader class, and pass public and assets folder
         $manifest = (new ManifestLoader(
             $this->publicFolder(),
             $this->assetsFolder(),
             $this->property('manifestFilename')
         ))->getManifest();
 
-        /**
-         * Bail if we couldn't load the class
-         */
+        /** Bail if we couldn't load the manifest */
         if (count($manifest) == 0) {
             throw new ApplicationException('Manifest file could not be loaded, or it contained no files: ' .
-                $manifestFilename
+                $fileName
             );
         }
 
-        if (!array_key_exists ($fileName , $manifest)) return '';
+        /** Return an empty string if the file isn't declared in the manifest */
+        if (!array_key_exists($fileName, $manifest)) {
+            return '';
+        }
 
         return $this->fileTag($manifest[$fileName]);
     }
 
     /**
-     * @param string $filePath
-     * @param string $fileType
+     * @param $fileName
      * @return string
      */
-     protected function fileTag($filePath) {
-         // Setup templates for tag types
-         $tags = array(
-             'css' => function($path) {
-                return '<link rel="stylesheet" type="text/css" href="' . url($path) .'">';
-             },
-             'js' => function($path) {
-                return '<script type="text/javascript" src="' . url($path) . '"></script>';
-             }
-         );
+    protected function getCacheKey($fileName)
+    {
+        return '::webpackassets:tag:'.$this->publicFolder().':'.$this->assetsFolder().':'.$this->property('manifestFilename').':'.$fileName;
+    }
 
-         // Figure out the file extension based on the path name
-         $extension = preg_match('/\.(\w+$)/', $filePath, $matches);
+    /**
+     * @param string $filePath
+     * @return string
+     */
+    protected function fileTag($filePath)
+    {
+        // Figure out the file extension based on the path name
+        preg_match('/\.(\w+$)/', $filePath, $matches);
 
-         // Return an empty string if the file extension can't be found
-         if (count($matches) == 0) return '';
+        switch (@$matches[1]) {
+            case 'css':
+                return $this->getCssTag($filePath);
+                break;
+            case 'js':
+                return $this->getJsTag($filePath);
+                break;
+        }
+        return '';
+    }
 
-         return $tags[$matches[1]]($filePath);
-     }
+    /**
+     * @param $path
+     * @return string
+     */
+    protected function getCssTag($path)
+    {
+        return '<link rel="stylesheet" type="text/css" href="' . url($path) . '">';
+    }
+
+    /**
+     * @param $path
+     * @return string
+     */
+    protected function getJsTag($path)
+    {
+        return '<script type="text/javascript" src="' . url($path) . '"></script>';
+    }
 }
