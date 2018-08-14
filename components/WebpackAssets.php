@@ -4,6 +4,7 @@ use Castiron\WebpackAssets\Services\ManifestLoader;
 use Cms\Classes\ComponentBase;
 use Cms\Classes\Theme;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Request;
 use October\Rain\Exception\ApplicationException;
 
 /**
@@ -165,7 +166,7 @@ class WebpackAssets extends ComponentBase
      */
     protected function getCssTag($path)
     {
-        return '<link rel="stylesheet" type="text/css" href="' . url($path) . '">';
+        return '<link rel="stylesheet" type="text/css" href="' . $path . '">';
     }
 
     /**
@@ -174,6 +175,6 @@ class WebpackAssets extends ComponentBase
      */
     protected function getJsTag($path)
     {
-        return '<script type="text/javascript" src="' . url($path) . '"></script>';
+        return '<script type="text/javascript" src="' . $path . '"></script>';
     }
 }
