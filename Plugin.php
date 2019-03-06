@@ -17,7 +17,7 @@ class Plugin extends PluginBase
     {
         return [
             'name'        => 'WebpackPhpManifest',
-            'description' => 'Include CSS and JS assets built using the nodejs module "php-manifest-webpack-plugin"',
+            'description' => 'Include CSS, JS, and font assets built using the nodejs module "php-manifest-webpack-plugin"',
             'author'      => 'Gabe Blair <gabe@castironcoding.com>',
             'icon'        => 'icon-leaf'
         ];
