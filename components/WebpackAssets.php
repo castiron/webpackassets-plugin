@@ -20,7 +20,7 @@ class WebpackAssets extends ComponentBase
     {
         return [
             'name' => 'Webpack assets',
-            'description' => 'Render Javascript/CSS includes for webpack assets'
+            'description' => 'Render Javascript/CSS/font includes for webpack assets'
         ];
     }
 
@@ -156,6 +156,9 @@ class WebpackAssets extends ComponentBase
             case 'js':
                 return $this->getJsTag($filePath);
                 break;
+            case 'woff2':
+                return $this->getFontTag($filePath, @$matches[1]);
+                break;
         }
         return '';
     }
@@ -176,5 +179,14 @@ class WebpackAssets extends ComponentBase
     protected function getJsTag($path)
     {
         return '<script type="text/javascript" src="' . $path . '"></script>';
+    }
+
+    /**
+     * @param $path
+     * @return string
+     */
+    protected function getFontTag($path, $ext)
+    {
+        return '<link rel="preload" as="font" type="font/' . $ext . '" href="' . $path . '" crossorigin="anonymous">';
     }
 }
