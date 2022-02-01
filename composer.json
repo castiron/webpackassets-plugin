@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "october/rain": "~1.0"
+        "october/rain": "1.*"
     },
     "autoload": {
         "psr-4": {
