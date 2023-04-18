@@ -75,3 +75,7 @@ assetsFolder = assets
 [webpackAssets]
 manifestFilename = files.json
 ```
+
+## Changelog
+### 2.0.3 ###
+* October 1.1 compatible
